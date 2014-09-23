@@ -23,7 +23,7 @@ public class BCDMessageWriter
    * character data in the specified character set
    * @param charset to be used when writing character data
    */
-  public BCDMessageWriter(CharEncoder charset) {
+  public BCDMessageWriter(final CharEncoder charset) {
     super.charCodec = charset;
   }
 
@@ -31,9 +31,9 @@ public class BCDMessageWriter
    * {@inheritDoc}
    */
   @Override
-  public void appendMTI(MTI type, DataOutputStream output)
+  public void appendMTI(final MTI type, final DataOutputStream output)
       throws IOException {
-    int mti = type.intValue();
+    final int mti = type.intValue();
     write(new byte[]{(byte) (mti >> 8), (byte) mti}, output);
   }
 
@@ -41,21 +41,20 @@ public class BCDMessageWriter
    * {@inheritDoc}
    */
   @Override
-  public void appendField(FieldTemplate field, Object data, DataOutputStream output)
+  public void appendField(final FieldTemplate field, final Object data, final DataOutputStream output)
       throws IOException {
-    Dimension dim = field.getDimension();
-    byte[] inputValue = field.format(data);
+    final Dimension dim = field.getDimension();
+    final byte[] inputValue = field.format(data);
     String fieldValue = charCodec.getString(inputValue);
     if (dim.getType() == Dimension.Type.VARIABLE) {
-      byte[] vspecifier = getVarLengthSpecifier(dim.getVSize(), fieldValue);
-      write(vspecifier, output);
+      write(getVarLengthSpecifier(dim.getVSize(), fieldValue), output);
     }
     if (field.getType().equals(FieldType.NUMSIGNED)) {
       write((byte) (inputValue[0] - 0x37), output); // 'C' => 0xC and 'D' => 0xD
       fieldValue = fieldValue.substring(1);
       //$FALL-THROUGH$
     }
-    byte[] encodedValue = null;
+    final byte[] encodedValue;
     if (field.getType().equals(FieldType.NUMERIC) ||
         field.getType().equals(FieldType.NUMSIGNED) ||
         field.getType().equals(FieldType.DATE) ||
@@ -74,17 +73,14 @@ public class BCDMessageWriter
    * @param vsize size of the variable width specifier (1, 2 or 3)
    * @param value the value to be stored in the field
    * @return field size as a byte array
-   * @throws IOException
    */
-  private byte[] getVarLengthSpecifier(int vsize, String value) {
+  private byte[] getVarLengthSpecifier(final int vsize, final String value) {
     int length = value.length();
-    if (length % 2 != 0) // is odd
-    {
+    if (length % 2 != 0) { // is odd
       length++;
     }
     byte[] vspecifier = BCD.valueOf(length);
-    if (vsize > 2 && vspecifier.length < 2) // LLLVAR: needs filler to make 2-byte length specifier
-    {
+    if (vsize > 2 && vspecifier.length < 2) { // LLLVAR: needs filler to make 2-byte length specifier
       vspecifier = ArrayUtils.add(vspecifier, 0, (byte) 0);
     }
     return vspecifier;

@@ -6,8 +6,8 @@ package org.seefin.formats.iso8583.formatters;
  */
 public class HexDumper {
   public static String
-  getHexDump(byte[] data) {
-    StringBuilder result = new StringBuilder();
+  getHexDump(final byte[] data) {
+    final StringBuilder result = new StringBuilder();
     for (int i = 0; i < data.length; i++) {
       if (i > 0) {
         if (i % 16 == 0) {

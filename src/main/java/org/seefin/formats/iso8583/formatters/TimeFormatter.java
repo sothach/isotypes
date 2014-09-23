@@ -17,7 +17,7 @@ public class TimeFormatter
     extends TypeFormatter<LocalTime> {
   private final static DateTimeFormatter Formatter = DateTimeFormat.forPattern("HHmmss");
 
-  public TimeFormatter(CharEncoder charset) {
+  public TimeFormatter(final CharEncoder charset) {
     setCharset(charset);
   }
 
@@ -26,11 +26,11 @@ public class TimeFormatter
    * @throws ParseException if the data cannot be parsed as a valid time value
    */
   @Override
-  public LocalTime parse(String type, Dimension dimension, int length, byte[] data)
+  public LocalTime parse(final String type, final Dimension dimension, final int length, final byte[] data)
       throws ParseException {
     try {
       return Formatter.parseLocalTime(decode(data));
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new ParseException("Cannot parse time for dimension: '" + type + ":" + length + "'", length);
     }
   }
@@ -40,7 +40,7 @@ public class TimeFormatter
    * @throws IllegalArgumentException if the data is null
    */
   @Override
-  public byte[] format(String type, Object data, Dimension dimension) {
+  public byte[] format(final String type, final Object data, final Dimension dimension) {
     if (data == null) {
       throw new IllegalArgumentException("Time value cannot be null");
     }
@@ -53,17 +53,15 @@ public class TimeFormatter
    * @return LocalTime set from data supplied
    * @throws IllegalArgumentException if the data is null or not a valid time value
    */
-  private LocalTime getTime(Object data) {
+  private LocalTime getTime(final Object data) {
     if (data instanceof LocalTime) {
       return (LocalTime) data;
-    }
-    if (data instanceof java.util.Date) {
+    } else if (data instanceof java.sql.Date) {
+      return new LocalTime(((java.sql.Date) data).getTime());
+    } else if (data instanceof java.util.Date) {
       return new LocalTime(((java.util.Date) data).getTime());
     }
-    if (data instanceof java.sql.Date) {
-      return new LocalTime(((java.sql.Date) data).getTime());
-    }
-    String timeString = String.format("%6.6s", data.toString().trim()).replaceAll(" ", "0");
+    final String timeString = String.format("%6.6s", data.toString().trim()).replaceAll(" ", "0");
     if (timeString.length() != 6) {
       throw new IllegalArgumentException("Invalid data [" + data + "]: cannot convert to time (" + timeString + ")");
     }
@@ -74,20 +72,20 @@ public class TimeFormatter
    * {@inheritDoc}
    */
   @Override
-  public boolean isValid(Object value, String type, Dimension dimension) {
+  public boolean isValid(final Object value, final String type, final Dimension dimension) {
     if (value == null) {
       return false;
     }
     if (value instanceof java.util.Date || value instanceof LocalTime) {
       return true;
     }
-    String timeValue = value.toString().trim();
+    final String timeValue = value.toString().trim();
     if (timeValue.length() != 6) {
       return false;
     }
     try {
       Formatter.parseLocalTime(timeValue);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       return false;
     }
     return true;

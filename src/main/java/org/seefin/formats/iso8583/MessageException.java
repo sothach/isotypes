@@ -9,23 +9,23 @@ import java.util.List;
  */
 public class MessageException
     extends RuntimeException {
-  private List<String> reasons = new ArrayList<String>();
+  private List<String> reasons = new ArrayList<>();
 
-  public MessageException(List<String> reasons) {
+  public MessageException(final List<String> reasons) {
     this.reasons = reasons;
   }
 
-  public MessageException(Throwable cause) {
+  public MessageException(final Throwable cause) {
     super(cause);
     reasons.add(cause.getMessage());
   }
 
-  public MessageException(String message) {
+  public MessageException(final String message) {
     super(message);
     reasons.add(message);
   }
 
-  public MessageException(String message, Throwable cause) {
+  public MessageException(final String message, final Throwable cause) {
     super(message, cause);
     reasons.add(message);
   }
@@ -33,7 +33,6 @@ public class MessageException
   /**
    * Answer with a list of error messages, typically produced by the
    * <code>Message.validate()</code> method
-   * @return
    */
   public List<String> getReasons() {
     return reasons;

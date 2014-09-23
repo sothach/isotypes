@@ -26,14 +26,14 @@ public class AutoGeneratorFactory {
    * @return the specified auto-generated value, of null if specification not understood
    */
 
-  public Object generate(String autogen, FieldTemplate field) {
+  public Object generate(final String autogen, final FieldTemplate field) {
     if (autogen == null || autogen.isEmpty()) {
       return null;
     }
     if ("=now".equals(autogen)) {
       return Calendar.getInstance().getTime();
     }
-    if (autogen.startsWith("#") == false) {
+    if (!autogen.startsWith("#")) {
       return null;
     }
     AutoGenerator generator = context.getBean(autogen.substring(1), AutoGenerator.class);

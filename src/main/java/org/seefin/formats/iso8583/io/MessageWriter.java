@@ -20,17 +20,17 @@ public abstract class MessageWriter {
   /** specifies the character encoding for text data (ASCII, EBCDIC) */
   protected CharEncoder charCodec;
 
-  protected void write(String data, DataOutputStream output)
+  protected void write(final String data, final DataOutputStream output)
       throws UnsupportedEncodingException, IOException {
     write(charCodec.getBytes(data), output);
   }
 
-  protected void write(byte[] data, DataOutputStream output)
+  protected void write(final byte[] data, final DataOutputStream output)
       throws UnsupportedEncodingException, IOException {
     output.write(data);
   }
 
-  protected void write(byte data, DataOutputStream output)
+  protected void write(final byte data, final DataOutputStream output)
       throws UnsupportedEncodingException, IOException {
     output.write(data);
   }
@@ -41,7 +41,7 @@ public abstract class MessageWriter {
    * @param output stream to append data to
    * @throws IOException if the data could not be written tot he output stream
    */
-  public void appendHeader(String header, DataOutputStream output)
+  public void appendHeader(final String header, final DataOutputStream output)
       throws IOException {
     output.write(charCodec.getBytes(header));
   }
@@ -70,7 +70,7 @@ public abstract class MessageWriter {
    * @param output stream to append data to
    * @throws IOException if the data could not be written tot he output stream
    */
-  public void appendBitmap(Bitmap bitmap, BitmapType type, DataOutputStream output)
+  public void appendBitmap(final Bitmap bitmap, final BitmapType type, final DataOutputStream output)
       throws IOException {
     if (type == BitmapType.BINARY) {
       appendBinaryBitmap(bitmap, output);
@@ -85,7 +85,7 @@ public abstract class MessageWriter {
    * @param output stream to append data to
    * @throws IOException if the data could not be written tot he output stream
    */
-  private void appendBinaryBitmap(Bitmap bitmap, DataOutputStream output)
+  private void appendBinaryBitmap(final Bitmap bitmap, final DataOutputStream output)
       throws IOException {
     output.write(bitmap.asBinary(Bitmap.Id.PRIMARY));
     if (bitmap.isBitmapPresent(Bitmap.Id.SECONDARY)) {
@@ -94,7 +94,6 @@ public abstract class MessageWriter {
         output.write(bitmap.asBinary(Bitmap.Id.TERTIARY));
       }
     }
-    return;
   }
 
   /**
@@ -103,15 +102,15 @@ public abstract class MessageWriter {
    * @param output stream to append data to
    * @throws IOException if the data could not be written tot he output stream
    */
-  private void appendHexBitmap(Bitmap bitmap, DataOutputStream output)
+  private void appendHexBitmap(final Bitmap bitmap, final DataOutputStream output)
       throws IOException {
-    byte[] bitmap1 = charCodec.getBytes(bitmap.asHex(Bitmap.Id.PRIMARY));
+    final byte[] bitmap1 = charCodec.getBytes(bitmap.asHex(Bitmap.Id.PRIMARY));
     output.write(bitmap1);
     if (bitmap.isBitmapPresent(Bitmap.Id.SECONDARY)) {
-      byte[] bitmap2 = charCodec.getBytes(bitmap.asHex(Bitmap.Id.SECONDARY));
+      final byte[] bitmap2 = charCodec.getBytes(bitmap.asHex(Bitmap.Id.SECONDARY));
       output.write(bitmap2);
       if (bitmap.isBitmapPresent(Bitmap.Id.TERTIARY)) {
-        byte[] bitmap3 = charCodec.getBytes(bitmap.asHex(Bitmap.Id.TERTIARY));
+        final byte[] bitmap3 = charCodec.getBytes(bitmap.asHex(Bitmap.Id.TERTIARY));
         output.write(bitmap3);
       }
     }

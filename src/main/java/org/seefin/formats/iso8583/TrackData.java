@@ -9,7 +9,6 @@ package org.seefin.formats.iso8583;
 public class TrackData {
   public enum Track {TRACK1, TRACK2, TRACK3}
 
-  ;
   private final Track type;
   private long primaryAccountNumber; // PAN : Primary Account Number, up to 19 digits, as defined in ISO/IEC 7812-1
   private String[] name;
@@ -18,9 +17,9 @@ public class TrackData {
   private String discretionaryData;  // DD : Discretionary data, balance of available digits
 
   /**
-   * @param track1
+   * @param type
    */
-  public TrackData(Track type) {
+  public TrackData(final Track type) {
     this.type = type;
   }
 
@@ -28,7 +27,7 @@ public class TrackData {
     return primaryAccountNumber;
   }
 
-  public void setPrimaryAccountNumber(long primaryAccountNumber) {
+  public void setPrimaryAccountNumber(final long primaryAccountNumber) {
     this.primaryAccountNumber = primaryAccountNumber;
   }
 
@@ -36,7 +35,7 @@ public class TrackData {
     return expirationDate;
   }
 
-  public void setExpirationDate(int expirationDate) {
+  public void setExpirationDate(final int expirationDate) {
     this.expirationDate = expirationDate;
   }
 
@@ -44,7 +43,7 @@ public class TrackData {
     return serviceCode;
   }
 
-  public void setServiceCode(int serviceCode) {
+  public void setServiceCode(final int serviceCode) {
     this.serviceCode = serviceCode;
   }
 
@@ -52,7 +51,7 @@ public class TrackData {
     return discretionaryData;
   }
 
-  public void setDiscretionaryData(String string) {
+  public void setDiscretionaryData(final String string) {
     this.discretionaryData = string;
   }
 
@@ -74,7 +73,7 @@ public class TrackData {
    * @throws IllegalStateException    if this method is called on Track2 or Track3 data objects
    * @throws IllegalArgumentException if name is null or not an array of four elements
    */
-  public void setName(String[] name) {
+  public void setName(final String[] name) {
     if (type != Track.TRACK1) {
       throw new IllegalStateException("Cannot set name field for " + type.toString());
     }
@@ -115,7 +114,7 @@ public class TrackData {
     if (name == null) {
       return "";
     }
-    return name[0] + "/" + name[1] + (name[2].isEmpty() == false ? (" " + name[2]) : "") + "." + name[3];
+    return name[0] + "/" + name[1] + (!name[2].isEmpty() ? (" " + name[2]) : "") + "." + name[3];
   }
 
 }

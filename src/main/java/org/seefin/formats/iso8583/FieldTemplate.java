@@ -4,7 +4,6 @@ import org.seefin.formats.iso8583.types.Dimension;
 import org.seefin.formats.iso8583.types.MTI;
 
 import java.text.ParseException;
-import java.text.ParsePosition;
 
 
 /**
@@ -29,7 +28,7 @@ public class FieldTemplate {
   private MTI messageType;
   private MessageTemplate message;
 
-  public FieldTemplate(int number, String type, Dimension dimension, String name, String description) {
+  public FieldTemplate(final int number, final String type, final Dimension dimension, final String name, final String description) {
     this.number = number;
     this.type = type;
     setDimension(dimension);
@@ -48,15 +47,15 @@ public class FieldTemplate {
     return messageType.toString();
   }
 
-  public void setMessageType(String type) {
+  public void setMessageType(final String type) {
     this.messageType = MTI.create(type);
   }
 
   public String getType() {
-    return type.toString();
+    return type;
   }
 
-  public void setType(String type) {
+  public void setType(final String type) {
     this.type = type;
   }
 
@@ -64,7 +63,7 @@ public class FieldTemplate {
     return dimension;
   }
 
-  public void setDimension(Dimension dimension) {
+  public void setDimension(final Dimension dimension) {
     this.dimension = dimension;
   }
 
@@ -72,7 +71,7 @@ public class FieldTemplate {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
@@ -80,7 +79,7 @@ public class FieldTemplate {
     return description;
   }
 
-  public void setDescription(String description) {
+  public void setDescription(final String description) {
     this.description = description;
   }
 
@@ -88,7 +87,7 @@ public class FieldTemplate {
     return defaultValue;
   }
 
-  public void setDefaultValue(String defaultValue) {
+  public void setDefaultValue(final String defaultValue) {
     this.defaultValue = defaultValue;
   }
 
@@ -96,11 +95,11 @@ public class FieldTemplate {
     return autogenSpec;
   }
 
-  public void setAutogen(String autogenSpec) {
+  public void setAutogen(final String autogenSpec) {
     this.autogenSpec = autogenSpec;
   }
 
-  public void setNumber(int number) {
+  public void setNumber(final int number) {
     this.number = number;
   }
 
@@ -108,19 +107,19 @@ public class FieldTemplate {
     return optional;
   }
 
-  public void setOptional(boolean optional) {
+  public void setOptional(final boolean optional) {
     this.optional = optional;
   }
 
   /**
    * Use this field definition to format the data supplied
-   * @param fieldValue
+   * @param value
    * @return data
    * @throws MessageException if the formatter failed to create a field of the correct size
    */
   public byte[]
-  format(Object value) {
-    String result = null;
+  format(final Object value) {
+    final String result;
     try {
       result = new String(
           message.getFormatter(type).format(type, value, this.dimension));
@@ -147,7 +146,7 @@ public class FieldTemplate {
         + (defaultValue != null ? (" default=[" + defaultValue + "]") : "");
   }
 
-  public Object parse(byte[] data, ParsePosition pos)
+  public Object parse(final byte[] data)
       throws ParseException {
     return message.getFormatter(type).parse(type, dimension, data.length, data);
   }
@@ -155,7 +154,7 @@ public class FieldTemplate {
   /**
    * @param messageTemplate
    */
-  public void setMessage(MessageTemplate messageTemplate) {
+  public void setMessage(final MessageTemplate messageTemplate) {
     this.message = messageTemplate;
   }
 
@@ -163,7 +162,7 @@ public class FieldTemplate {
    * @param value
    * @return
    */
-  public boolean validValue(Object value) {
+  public boolean validValue(final Object value) {
     return message.getFormatter(type).isValid(value, type, dimension);
   }
 

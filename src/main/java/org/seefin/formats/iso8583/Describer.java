@@ -6,6 +6,7 @@ package org.seefin.formats.iso8583;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility class that can describe an ISO8583 message in readable form, used for
@@ -20,16 +21,16 @@ class Describer
   protected final MessageTemplate template;
   protected final Map<Integer, Object> fields;
 
-  public Describer(MessageTemplate template, Map<Integer, Object> fields) {
+  public Describer(final MessageTemplate template, final Map<Integer, Object> fields) {
     this.template = template;
     this.fields = fields;
   }
 
   @Override
   public String
-  toString() { StringBuilder result = new StringBuilder();
-    for (String line : this) {
-      result.append(line + "\n");
+  toString() { final StringBuilder result = new StringBuilder();
+    for (final String line : this) {
+      result.append(line).append("\n");
     }
     return result.toString();
   }
@@ -38,7 +39,7 @@ class Describer
   public Iterator<String> iterator() {
     return new Iterator<String>() {
       private boolean more = true;
-      private Integer[] fieldkeys = getKeys(fields);
+      private final Integer[] fieldkeys = getKeys(fields);
       private int i;
 
       /** is there any more description? */
@@ -48,11 +49,12 @@ class Describer
       }
 
       private Integer[]
-      getKeys(Map<Integer, Object> fields) {
+      getKeys(final Map<Integer, Object> fields) {
         if (fields == null) {
           return new Integer[0];
         }
-        Integer[] result = fields.keySet().toArray(new Integer[0]);
+        final Set<Integer> integers = fields.keySet();
+        final Integer[] result = integers.toArray(new Integer[integers.size()]);
         Arrays.sort(result);
         return result;
       }
@@ -73,9 +75,9 @@ class Describer
               "F#", "Dimension:Type", "Value (is-a)", "Name", "Description");
         }
         more = i <= fieldkeys.length;
-        int key = fieldkeys[i - 2];
-        FieldTemplate field = template.getFields().get(key);
-        Object value = fields.get(key);
+        final int key = fieldkeys[i - 2];
+        final FieldTemplate field = template.getFields().get(key);
+        final Object value = fields.get(key);
         i++;
         return String.format("%3d: %s:%-4s %-37s %-15s %s",
             key, field.getDimension(), field.getType(), "[" + value + "] ("

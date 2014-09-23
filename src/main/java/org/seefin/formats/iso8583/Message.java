@@ -26,7 +26,7 @@ public class Message {
    * @param messageTypeIndicator
    * @throws IllegalArgumentException if the supplied MTI is null
    */
-  public Message(MTI messageTypeIndicator) {
+  public Message(final MTI messageTypeIndicator) {
     if (messageTypeIndicator == null) {
       throw new IllegalArgumentException("MTI cannot be null");
     }
@@ -42,7 +42,7 @@ public class Message {
     return header;
   }
 
-  public void setHeader(String header) {
+  public void setHeader(final String header) {
     this.header = header;
   }
 
@@ -50,7 +50,7 @@ public class Message {
     return fields;
   }
 
-  public void setFields(Map<Integer, Object> fields) {
+  public void setFields(final Map<Integer, Object> fields) {
     this.fields = fields;
   }
 
@@ -71,12 +71,12 @@ public class Message {
    * @throws IllegalArgumentException if the value data type supplied is not
    *                                  compatible with the defined field type
    */
-  public void setFieldValue(int fieldNumber, Object value) {
-    if (template.isFieldPresent(fieldNumber) == false) {
+  public void setFieldValue(final int fieldNumber, final Object value) {
+    if (!template.isFieldPresent(fieldNumber)) {
       throw new NoSuchFieldError(fieldNumber + "");
     }
     FieldTemplate field = template.getFields().get(fieldNumber);
-    if (field.validValue(value) == false) {
+    if (!field.validValue(value)) {
       throw new IllegalArgumentException("Supplied value (" + value + ") not valid for field:" + field);
     }
     fields.put(fieldNumber, value);
@@ -90,7 +90,7 @@ public class Message {
    * @throws IllegalArgumentException if the value data type supplied is not
    *                                  compatible with the defined field type
    */
-  public void setFieldValue(String fieldName, Object value) {
+  public void setFieldValue(final String fieldName, final Object value) {
     setFieldValue(
         template.getFieldNumberForName(fieldName), value);
   }
@@ -101,8 +101,8 @@ public class Message {
    * @return the field value
    * @throws NoSuchFieldError if the field is not defined for this message
    */
-  public Object getFieldValue(int fieldNumber) {
-    if (template.isFieldPresent(fieldNumber) == false) {
+  public Object getFieldValue(final int fieldNumber) {
+    if (!template.isFieldPresent(fieldNumber)) {
       throw new NoSuchFieldError(fieldNumber + "");
     }
     return fields.get(fieldNumber);
@@ -114,7 +114,7 @@ public class Message {
    * @return the field value
    * @throws NoSuchFieldError if the field is not defined for this message
    */
-  public Object getFieldValue(String fieldName) {
+  public Object getFieldValue(final String fieldName) {
     return getFieldValue(
         template.getFieldNumberForName(fieldName));
   }
@@ -124,8 +124,8 @@ public class Message {
    * @param fieldNumber
    * @throws NoSuchFieldError if the field is not defined for this message
    */
-  public void removeField(int fieldNumber) {
-    if (template.isFieldPresent(fieldNumber) == false) {
+  public void removeField(final int fieldNumber) {
+    if (!template.isFieldPresent(fieldNumber)) {
       throw new NoSuchFieldError(fieldNumber + "");
     }
     fields.remove(fieldNumber);
@@ -145,7 +145,7 @@ public class Message {
    * Set the message template that defines this message instance
    * @param messageTemplate
    */
-  public void setTemplate(MessageTemplate messageTemplate) {
+  public void setTemplate(final MessageTemplate messageTemplate) {
     this.template = messageTemplate;
   }
 
@@ -169,7 +169,7 @@ public class Message {
    * Add all the supplied field values to this message
    * @param fieldValues
    */
-  public void addFields(Map<Integer, Object> fieldValues) {
+  public void addFields(final Map<Integer, Object> fieldValues) {
     fields.putAll(fieldValues);
   }
 
@@ -186,7 +186,7 @@ public class Message {
    * @param number
    * @return
    */
-  public boolean isFieldPresent(int number) {
+  public boolean isFieldPresent(final int number) {
     return template.isFieldPresent(number);
   }
 

@@ -19,7 +19,7 @@ public class NumberFormatter
     extends TypeFormatter<BigInteger> {
   private static final Pattern NumberMatcher = Pattern.compile("[-0-9]+");
 
-  public NumberFormatter(CharEncoder charset) {
+  public NumberFormatter(final CharEncoder charset) {
     setCharset(charset);
   }
 
@@ -27,28 +27,28 @@ public class NumberFormatter
    * {@inheritDoc}
    */
   @Override
-  public BigInteger parse(String type, Dimension dimension, int length, byte[] data)
+  public BigInteger parse(final String type, final Dimension dimension, final int length, final byte[] data)
       throws ParseException {
     try {
       if (FieldType.NUMSIGNED.equalsIgnoreCase(type)) {
         return parseXNField(type, length, data);
       }
       return new BigInteger(decode(data));
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new ParseException("Bad number format " + e.getMessage()
           + " for type=" + type + " [" + new String(data) + "]", length);
     }
   }
 
-  private BigInteger parseXNField(String type, int length, byte[] data)
+  private BigInteger parseXNField(final String type, final int length, final byte[] data)
       throws ParseException {
-    String sign = decode(Arrays.copyOfRange(data, 0, 1));
-    char signC = sign.toUpperCase().charAt(0);
+    final String sign = decode(Arrays.copyOfRange(data, 0, 1));
+    final char signC = sign.toUpperCase().charAt(0);
     if (signC != 'C' && signC != 'D') {
       throw new ParseException("Bad number format for " + type
           + ": must start with C or D (field data=[" + decode(data) + "])", length);
     }
-    String value = decode(Arrays.copyOfRange(data, 1, data.length));
+    final String value = decode(Arrays.copyOfRange(data, 1, data.length));
     BigInteger result = new BigInteger(value);
     if (signC == 'D') {
       result = result.negate();
@@ -61,7 +61,7 @@ public class NumberFormatter
    * @throws IllegalArgumentException if the data is null or not a valid numeric value
    */
   @Override
-  public byte[] format(String type, Object data, Dimension dimension) {
+  public byte[] format(final String type, final Object data, final Dimension dimension) {
     if (data == null) {
       throw new IllegalArgumentException("Numeric value cannot be null");
     }
@@ -80,7 +80,7 @@ public class NumberFormatter
     String result = value.toString();
     if (result.length() > length) {
       throw new IllegalArgumentException(
-          "Field data length (" + (isSigned == false ? result.length() : (result.length() + 1))
+          "Field data length (" + (!isSigned ? result.length() : (result.length() + 1))
               + ") exceeds field maximum (" + dimension.getLength()
               + ") [data=" + data + ", type=" + type + ", dim=" + dimension + "]");
     }
@@ -93,7 +93,7 @@ public class NumberFormatter
     return result.getBytes();
   }
 
-  private String zeroPad(String result, int length) {
+  private String zeroPad(final String result, final int length) {
     if (result.length() >= length) {
       return result;
     }
@@ -106,7 +106,7 @@ public class NumberFormatter
    * @return data converted to a BigInteger value
    * @throws IllegalArgumentException if the data is null or not a valid numeric value
    */
-  private BigInteger getNumericValue(Object data) {
+  private BigInteger getNumericValue(final Object data) {
     if (data == null) {
       throw new IllegalArgumentException("Cannot convert <null> to numeric");
     }
@@ -120,7 +120,7 @@ public class NumberFormatter
     } else if (data instanceof Float || data instanceof Double) {
       return BigInteger.valueOf(Double.doubleToLongBits((Double) data));
     } else {
-      String value;
+      final String value;
       if (data instanceof byte[]) {
         value = new String((byte[]) data).trim();
       } else {
@@ -137,17 +137,14 @@ public class NumberFormatter
    * {@inheritDoc}
    */
   @Override
-  public boolean isValid(Object value, String type, Dimension dimension) {
-    BigInteger bi;
+  public boolean isValid(final Object value, final String type, final Dimension dimension) {
+    final BigInteger bi;
     try {
       bi = getNumericValue(value);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       return false;
     }
-    if (bi.toString().length() > dimension.getLength()) {
-      return false;
-    }
-    return true;
+    return bi.toString().length() <= dimension.getLength();
   }
 
 }

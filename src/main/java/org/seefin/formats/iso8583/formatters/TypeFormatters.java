@@ -25,9 +25,9 @@ import java.util.Map;
  */
 public class TypeFormatters {
   private final CharEncoder charset;
-  private Map<String, TypeFormatter<?>> formatters = new HashMap<String, TypeFormatter<?>>();
+  private final Map<String, TypeFormatter<?>> formatters = new HashMap<String, TypeFormatter<?>>();
 
-  public TypeFormatters(CharEncoder charset) {
+  public TypeFormatters(final CharEncoder charset) {
     if (charset == null) {
       throw new IllegalArgumentException("charset cannot be null/empty");
     }
@@ -40,11 +40,11 @@ public class TypeFormatters {
    * they handle
    */
   private void initializeFormatters() {
-    TypeFormatter<DateTime> DateFormatter = new DateFormatter(charset);
-    TypeFormatter<LocalTime> TimeFormatter = new TimeFormatter(charset);
-    TypeFormatter<BigInteger> NumberFormatter = new NumberFormatter(charset);
-    TypeFormatter<String> AlphaFormatter = new AlphaFormatter(charset);
-    TypeFormatter<TrackData> TrackFormatter = new TrackDataFormatter(charset);
+    final TypeFormatter<DateTime> DateFormatter = new DateFormatter(charset);
+    final TypeFormatter<LocalTime> TimeFormatter = new TimeFormatter(charset);
+    final TypeFormatter<BigInteger> NumberFormatter = new NumberFormatter(charset);
+    final TypeFormatter<String> AlphaFormatter = new AlphaFormatter(charset);
+    final TypeFormatter<TrackData> TrackFormatter = new TrackDataFormatter(charset);
 
     formatters.put(FieldType.DATE, DateFormatter);
     formatters.put(FieldType.EXDATE, DateFormatter);
@@ -65,12 +65,12 @@ public class TypeFormatters {
    * @param type
    * @param formatter
    */
-  public void setFormatter(String type, TypeFormatter<?> formatter) {
+  public void setFormatter(final String type, final TypeFormatter<?> formatter) {
     formatter.setCharset(charset);
     formatters.put(type, formatter);
   }
 
-  public TypeFormatter<?> getFormatter(String type) {
+  public TypeFormatter<?> getFormatter(final String type) {
     return formatters.get(type);
   }
 

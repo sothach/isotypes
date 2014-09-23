@@ -17,10 +17,9 @@ public class CharMessageReader
     extends MessageReader {
   /**
    * Instantiate a character message reader
-   * @param input   stream to read the message from
    * @param charset character set that character data is expected to be encoded with
    */
-  public CharMessageReader(CharEncoder charset) {
+  public CharMessageReader(final CharEncoder charset) {
     super.charCodec = charset;
   }
 
@@ -28,9 +27,9 @@ public class CharMessageReader
    * {@inheritDoc}
    */
   @Override
-  public MTI readMTI(DataInputStream input)
+  public MTI readMTI(final DataInputStream input)
       throws IOException {
-    byte[] data = readBytes(4, input);
+    final byte[] data = readBytes(4, input);
     return MTI.create(charCodec.getString(data));
   }
 
@@ -38,20 +37,18 @@ public class CharMessageReader
    * {@inheritDoc}
    */
   @Override
-  public byte[] readField(FieldTemplate field, DataInputStream input)
+  public byte[] readField(final FieldTemplate field, final DataInputStream input)
       throws IOException {
     int length = field.getDimension().getLength();
     if (field.getDimension().getType() == Dimension.Type.VARIABLE) {
-      byte[] data = readBytes(field.getDimension().getVSize(), input);
+      final byte[] data = readBytes(field.getDimension().getVSize(), input);
       length = Integer.parseInt(charCodec.getString(data));
     }
-    byte[] result = null;
     try {
-      result = readBytes(length, input);
-    } catch (Exception e) {
+      return readBytes(length, input);
+    } catch (final Exception e) {
       throw new IOException("Failed to field " + field + " from input stream", e);
     }
-    return result;
   }
 
 

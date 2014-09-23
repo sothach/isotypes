@@ -10,7 +10,7 @@ import org.junit.Test;
 public class TestMTI {
   @Test
   public void testGoodMTI() {
-    MTI mti = MTI.create("0200");
+    final MTI mti = MTI.create("0200");
     Assert.assertEquals("0200", mti.toString());
     Assert.assertEquals("ISO 8583-1:1987", mti.getVersion());
     Assert.assertEquals("Financial Message", mti.getMessageClass());
@@ -20,7 +20,7 @@ public class TestMTI {
 
   @Test
   public void testGoodMTIBinary() {
-    MTI mti = MTI.create(0x0200);
+    final MTI mti = MTI.create(0x0200);
     Assert.assertEquals("0200", mti.toString());
     Assert.assertEquals("ISO 8583-1:1987", mti.getVersion());
     Assert.assertEquals("Financial Message", mti.getMessageClass());
@@ -35,7 +35,7 @@ public class TestMTI {
 
   @Test
   public void testAcquirerReversalAdviceRepeatMessage() {
-    MTI mti = MTI.create("0421");
+    final MTI mti = MTI.create("0421");
     Assert.assertEquals("0421", mti.toString());
   }
 

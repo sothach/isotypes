@@ -41,7 +41,7 @@ public abstract class MessageReader {
    * @return a Bitmap object initialized from the input data
    * @throws IOException if the required amount of data cannot be read
    */
-  public Bitmap readBitmap(BitmapType bitmapType, DataInputStream input)
+  public Bitmap readBitmap(final BitmapType bitmapType, final DataInputStream input)
       throws IOException {
     if (bitmapType == BitmapType.BINARY) {
       return readBinaryBitmap(input);
@@ -54,17 +54,17 @@ public abstract class MessageReader {
    * @return a Bitmap object initialized from the input data
    * @throws IOException if the required amount of data cannot be read
    */
-  private Bitmap readBinaryBitmap(DataInputStream input)
+  private Bitmap readBinaryBitmap(final DataInputStream input)
       throws IOException {
     // read the first bitmap
     byte[] bitmap1 = readBytes(8, input);
     // read secondary bitmap (if present):
     if ((bitmap1[0] & (byte) 0x80) != 0) {
-      byte[] bitmap2 = readBytes(8, input);
+      final byte[] bitmap2 = readBytes(8, input);
       bitmap1 = ArrayUtils.addAll(bitmap1, bitmap2);
       // read tertiary bitmap (if present):
-      if ((bitmap2[0] & (byte) 0x80) == 1) {
-        byte[] bitmap3 = readBytes(8, input);
+      if ((bitmap2[0] & (byte) 0x80) == 0x80) {
+        final byte[] bitmap3 = readBytes(8, input);
         bitmap1 = ArrayUtils.addAll(bitmap1, bitmap3);
       }
     }
@@ -76,21 +76,21 @@ public abstract class MessageReader {
    * @return a Bitmap object initialized from the input data
    * @throws IOException if the required amount of data cannot be read
    */
-  private Bitmap readHexBitmap(DataInputStream input)
+  private Bitmap readHexBitmap(final DataInputStream input)
       throws IOException {
     // read the first bitmap
-    String bitmap1 = charCodec.getString(readBytes(16, input));
+    final String bitmap1 = charCodec.getString(readBytes(16, input));
 
     Bitmap result = Bitmap.parse(bitmap1);
 
     // read secondary bitmap (if present):
-    if (result.isBitmapPresent(Bitmap.Id.SECONDARY) == true) {
-      String bitmap2 = charCodec.getString(readBytes(16, input));
+    if (result.isBitmapPresent(Bitmap.Id.SECONDARY)) {
+      final String bitmap2 = charCodec.getString(readBytes(16, input));
       result = Bitmap.parse(bitmap1 + bitmap2);
       ;
       // read tertiary bitmap (if present):
-      if (result.isBitmapPresent(Bitmap.Id.TERTIARY) == true) {
-        String bitmap3 = charCodec.getString(readBytes(16, input));
+      if (result.isBitmapPresent(Bitmap.Id.TERTIARY)) {
+        final String bitmap3 = charCodec.getString(readBytes(16, input));
         result = Bitmap.parse(bitmap1 + bitmap2 + bitmap3);
       }
     }
@@ -103,9 +103,9 @@ public abstract class MessageReader {
    * @return the header as a string
    * @throws IOException if the required amount of data cannot be read
    */
-  public String readHeader(int size, DataInputStream input)
+  public String readHeader(final int size, final DataInputStream input)
       throws IOException {
-    byte[] data = new byte[size];
+    final byte[] data = new byte[size];
     input.readFully(data);
     return charCodec.getString(data);
   }

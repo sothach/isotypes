@@ -23,7 +23,7 @@ public final class MTI
    * @throws IllegalArgumentException if the code is null, not 4 chars in length,
    *                                  or does not conform to the valid MTI pattern: <code>[0129][123456789][0123489][012345]</code>
    */
-  private MTI(char[] code) {
+  private MTI(final char[] code) {
     if (code == null || code.length != 4) {
       throw new IllegalArgumentException(
           "MTI must not be null and four chars long [" + Arrays.toString(code) + "]");
@@ -43,7 +43,7 @@ public final class MTI
    * @param code
    * @return
    */
-  public static MTI create(String code) {
+  public static MTI create(final String code) {
     return new MTI(code.toCharArray());
   }
 
@@ -52,7 +52,7 @@ public final class MTI
    * @param code
    * @return
    */
-  public static MTI create(int code) {
+  public static MTI create(final int code) {
     char[] mti = new char[]{
         (char) (((code & 0xf000) >> 12) + 0x30),
         (char) (((code & 0x0f00) >> 8) + 0x30),
@@ -61,14 +61,14 @@ public final class MTI
     return new MTI(mti);
   }
 
-  private static Map<Character, String> versions = new HashMap<Character, String>() {{
+  private static final Map<Character, String> versions = new HashMap<Character, String>() {{
     put('0', "ISO 8583-1:1987");
     put('1', "ISO 8583-1:1993");
     put('2', "ISO 8583-1:2003");
     put('9', "Private");
   }};
 
-  private static Map<Character, String> messageClasses = new HashMap<Character, String>() {{
+  private static final Map<Character, String> messageClasses = new HashMap<Character, String>() {{
     put('1', "Authorization Message");
     put('2', "Financial Message");
     put('3', "File Actions Message");
@@ -80,7 +80,7 @@ public final class MTI
     put('9', "Reserved by ISO");
   }};
 
-  private static Map<Character, String> messageFunctions = new HashMap<Character, String>() {{
+  private static final Map<Character, String> messageFunctions = new HashMap<Character, String>() {{
     put('0', "Request");
     put('1', "Request Response");
     put('2', "Advice");
@@ -90,7 +90,7 @@ public final class MTI
     put('9', "Negative acknowledgment");
   }};
 
-  private static Map<Character, String> messageOrigins = new HashMap<Character, String>() {{
+  private static final Map<Character, String> messageOrigins = new HashMap<Character, String>() {{
     put('0', "Acquirer");
     put('1', "Acquirer Repeat");
     put('2', "Issuer");
@@ -134,14 +134,8 @@ public final class MTI
   }
 
   @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (other == null || other.getClass() != this.getClass()) {
-      return false;
-    }
-    return value.equals(((MTI) other).value);
+  public boolean equals(final Object other) {
+    return this == other || !(other == null || other.getClass() != this.getClass()) && value.equals(((MTI) other).value);
   }
 
   @Override
@@ -154,7 +148,7 @@ public final class MTI
   }
 
   @Override
-  public int compareTo(MTI other) {
+  public int compareTo(final MTI other) {
     return value.compareTo(other.value);
   }
 

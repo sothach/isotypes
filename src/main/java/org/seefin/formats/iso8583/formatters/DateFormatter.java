@@ -25,7 +25,7 @@ public class DateFormatter
     put(FieldType.EXDATE + ":4", DateTimeFormat.forPattern("yyMM"));
   }};
 
-  public DateFormatter(CharEncoder charset) {
+  public DateFormatter(final CharEncoder charset) {
     setCharset(charset);
   }
 
@@ -34,17 +34,17 @@ public class DateFormatter
    * @throws ParseException if the supplied data cannot be parsed as a date value
    */
   @Override
-  public DateTime parse(String type, Dimension dim, int length, byte[] data)
+  public DateTime parse(final String type, final Dimension dim, final int length, final byte[] data)
       throws ParseException {
-    DateTimeFormatter formatter = Formatters.get(type + ":" + length);
+    final DateTimeFormatter formatter = Formatters.get(type + ":" + length);
     if (formatter == null) {
       throw new ParseException("Formatter not found for date field, type=("
           + type + ":" + length + ") data=" + HexDumper.getHexDump(data), length);
     }
     try {
       return formatter.parseDateTime(decode(data));
-    } catch (Exception e) {
-      ParseException rethrow = new ParseException("Cannot parse date field value, type=("
+    } catch (final Exception e) {
+      final ParseException rethrow = new ParseException("Cannot parse date field value, type=("
           + type + ":" + length + ") data=" + HexDumper.getHexDump(data)
           + " [decoded=" + decode(data) + "]", length);
       rethrow.initCause(e);
@@ -57,11 +57,11 @@ public class DateFormatter
    * @throws IllegalArgumentException if the data is null or not a valid date value
    */
   @Override
-  public byte[] format(String type, Object data, Dimension dimension) {
+  public byte[] format(final String type, final Object data, final Dimension dimension) {
     if (data == null) {
       throw new IllegalArgumentException("Date value cannot be null");
     }
-    DateTime dateTime = getDateValue(data);
+    final DateTime dateTime = getDateValue(data);
     if (dateTime == null) {
       throw new IllegalArgumentException("Invalid data [" + data
           + "] expected Date, got a " + data.getClass().getCanonicalName());
@@ -69,20 +69,18 @@ public class DateFormatter
     return Formatters.get(type + ":" + dimension.getLength()).print(dateTime).getBytes();
   }
 
-  public static DateTime getDateValue(Object data) {
+  public static DateTime getDateValue(final Object data) {
     if (data instanceof DateTime) {
       return (DateTime) data;
-    }
-    if (data instanceof java.util.Date) {
+    } else if (data instanceof java.sql.Date) {
+      return new DateTime(((java.sql.Date) data).getTime());
+    } else if (data instanceof java.util.Date) {
       return new DateTime(((java.util.Date) data).getTime());
     }
-    if (data instanceof java.sql.Date) {
-      return new DateTime(((java.sql.Date) data).getTime());
-    }
 
-    String dateString = data.toString().trim();
-    String key = FieldType.DATE + ":" + dateString.length();
-    DateTimeFormatter formatter = Formatters.get(key);
+    final String dateString = data.toString().trim();
+    final String key = FieldType.DATE + ":" + dateString.length();
+    final DateTimeFormatter formatter = Formatters.get(key);
     if (formatter == null) {
       throw new IllegalArgumentException("Invalid data [" + data + "]: cannot convert to date");
     }
@@ -94,24 +92,24 @@ public class DateFormatter
    * {@inheritDoc}
    */
   @Override
-  public boolean isValid(Object value, String type, Dimension dim) {
+  public boolean isValid(final Object value, final String type, final Dimension dim) {
     return validate(value, type);
   }
 
-  public static boolean validate(Object value, String type) {
+  public static boolean validate(final Object value, final String type) {
     if (value == null) {
       return false;
     }
     if (value instanceof java.util.Date || value instanceof DateTime) {
       return true;
     }
-    String dateValue = value.toString().trim();
+    final String dateValue = value.toString().trim();
     if (dateValue.length() != 4 && dateValue.length() != 10) {
       return false;
     }
     try {
       Formatters.get(type + ":" + dateValue.length()).parseDateTime(dateValue);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       return false;
     }
 

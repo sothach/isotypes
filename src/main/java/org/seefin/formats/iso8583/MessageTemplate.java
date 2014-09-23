@@ -27,11 +27,11 @@ public class MessageTemplate {
   /** ISO8583 message type indicator for the message represented by this template */
   private MTI type;
   /** ISO8583 fields included in the target message */
-  private Map<Integer, FieldTemplate> fields = new HashMap<Integer, FieldTemplate>();
+  private Map<Integer, FieldTemplate> fields = new HashMap<>();
   /** mapping of logical names to field numbers */
-  private Map<String, Integer> nameIndex = new HashMap<String, Integer>();
+  private final Map<String, Integer> nameIndex = new HashMap<>();
   /** bitmap indicating the fields present in the message */
-  private Bitmap bitmap = new Bitmap();
+  private final Bitmap bitmap = new Bitmap();
   /** schema to which this template belongs: provides default values, e.g., contentType */
   private MessageFactory schema;
 
@@ -42,7 +42,7 @@ public class MessageTemplate {
    * @param bitmapType is a binary or hex bitmap to be used?
    * @return empty message template instance for the message type specified
    */
-  public static MessageTemplate create(String header, MTI mti, BitmapType bitmapType) {
+  public static MessageTemplate create(final String header, final MTI mti, final BitmapType bitmapType) {
     return new MessageTemplate(header, mti);
   }
 
@@ -57,7 +57,7 @@ public class MessageTemplate {
    * @param header
    * @param mti
    */
-  private MessageTemplate(String header, MTI mti) {
+  private MessageTemplate(final String header, final MTI mti) {
     this.header = header;
     type = mti;
   }
@@ -66,7 +66,7 @@ public class MessageTemplate {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
@@ -74,7 +74,7 @@ public class MessageTemplate {
     return header != null ? header : schema.getHeader();
   }
 
-  public void setHeader(String header) {
+  public void setHeader(final String header) {
     this.header = header;
   }
 
@@ -82,7 +82,7 @@ public class MessageTemplate {
     return type;
   }
 
-  public void setMessageTypeIndicator(MTI type) {
+  public void setMessageTypeIndicator(final MTI type) {
     this.type = type;
   }
 
@@ -90,7 +90,7 @@ public class MessageTemplate {
     return type.toString();
   }
 
-  public void setType(String mti) {
+  public void setType(final String mti) {
     type = MTI.create(mti);
   }
 
@@ -104,7 +104,7 @@ public class MessageTemplate {
    * all potential 192 fields (primary, secondary and tertiary bitmaps)
    * @param fields Field-number keyed map of field templates
    */
-  public void setFields(Map<Integer, FieldTemplate> fields) {
+  public void setFields(final Map<Integer, FieldTemplate> fields) {
     this.fields = fields;
     bitmap.clear();
     for (Integer fieldNb : fields.keySet()) {
@@ -140,13 +140,13 @@ public class MessageTemplate {
    * updating the bitmap to reflect its presence
    * @param field
    */
-  public void addField(FieldTemplate field) {
+  public void addField(final FieldTemplate field) {
     field.setMessage(this);
     fields.put(field.getNumber(), field);
     bitmap.setField(field.getNumber());
     // add the field to the name index, if set:
     String fieldName = field.getName();
-    if (fieldName != null && fieldName.isEmpty() == false) {
+    if (fieldName != null && !fieldName.isEmpty()) {
       nameIndex.put(field.getName(), field.getNumber());
     }
   }
@@ -160,7 +160,7 @@ public class MessageTemplate {
    * Associate this template with the supplied schema
    * @param messageFactory to which this message template will belong
    */
-  public void setSchema(MessageFactory messageFactory) {
+  public void setSchema(final MessageFactory messageFactory) {
     this.schema = messageFactory;
   }
 
@@ -169,7 +169,7 @@ public class MessageTemplate {
    * @return a formatter capable of formatting.parsing a field of <code>type</code>
    * @throws MessageException if not formatter registered for the supplied field type
    */
-  TypeFormatter<?> getFormatter(String type) {
+  TypeFormatter<?> getFormatter(final String type) {
     return schema.getFormatter(type);
   }
 
@@ -178,22 +178,22 @@ public class MessageTemplate {
    * @param message instance to validate against this template
    * @return a list of errors detected, or an empty list, if message is valid
    */
-  List<String> validate(Message message) {
+  List<String> validate(final Message message) {
     List<String> result = new ArrayList<String>();
-    if (message.getMTI().equals(this.type) == false) {
+    if (!message.getMTI().equals(this.type)) {
       result.add("Message MTI (" + message.getMTI() + ") != Template MTI (" + type + ")");
     }
-    if (message.getHeader().equals(getHeader()) == false) {
+    if (!message.getHeader().equals(getHeader())) {
       result.add("Message header (" + message.getHeader() + ") != Template header (" + getHeader() + ")");
     }
     for (FieldTemplate field : fields.values()) {
-      if (field.isOptional() == true) {
+      if (field.isOptional()) {
         continue;
       }
       Object msgField = message.getFields().get(field.getNumber());
       if (msgField == null) {
         result.add("Message field missing (" + field + ")");
-      } else if (field.validValue(msgField) == false) {
+      } else if (!field.validValue(msgField)) {
         result.add("Message field data invalid (" + msgField + ") for field: " + field);
       }
     }
@@ -205,7 +205,7 @@ public class MessageTemplate {
    * @param fieldNumber
    * @return
    */
-  boolean isFieldPresent(int fieldNumber) {
+  boolean isFieldPresent(final int fieldNumber) {
     return bitmap.isFieldPresent(fieldNumber);
   }
 
@@ -215,7 +215,7 @@ public class MessageTemplate {
    * @param fieldNb of field requested
    * @return the asscociated field template from this message template
    */
-  public FieldTemplate getField(int fieldNb) {
+  public FieldTemplate getField(final int fieldNb) {
     return fields.get(fieldNb);
   }
 
@@ -224,8 +224,8 @@ public class MessageTemplate {
    * @param fieldName to lookup
    * @return field number
    */
-  int getFieldNumberForName(String fieldName) {
-    if (nameIndex.containsKey(fieldName) == false) {
+  int getFieldNumberForName(final String fieldName) {
+    if (!nameIndex.containsKey(fieldName)) {
       throw new NoSuchFieldError(fieldName);
     }
     return nameIndex.get(fieldName);

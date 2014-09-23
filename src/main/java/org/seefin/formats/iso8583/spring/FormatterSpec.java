@@ -22,7 +22,7 @@ public class FormatterSpec {
     return spec;
   }
 
-  public void setSpec(Object spec) {
+  public void setSpec(final Object spec) {
     this.spec = spec;
   }
 

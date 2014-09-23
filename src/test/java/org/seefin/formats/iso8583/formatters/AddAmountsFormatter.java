@@ -27,7 +27,7 @@ import java.util.List;
 public class AddAmountsFormatter
     extends TypeFormatter<PostilionAddAmount[]> {
   private static final int Segmentlength = 20; // size of the recurring fields segment
-  private TypeFormatter<BigInteger> numberFormatter;
+  private final TypeFormatter<BigInteger> numberFormatter;
 
   public AddAmountsFormatter() {
     setCharset(CharEncoder.ASCII);
@@ -35,41 +35,41 @@ public class AddAmountsFormatter
   }
 
   @Override
-  public PostilionAddAmount[] parse(String type, Dimension dimension, int length, byte[] data)
+  public PostilionAddAmount[] parse(final String type, final Dimension dimension, final int length, final byte[] data)
       throws ParseException {
-    String field = new String(data);
-    List<PostilionAddAmount> result = new ArrayList<PostilionAddAmount>(6);
+    final String field = new String(data);
+    final List<PostilionAddAmount> result = new ArrayList<>(6);
     // split into 20-char fields
     for (int p = 0; p < field.length(); p += Segmentlength) {
-      String segment = field.substring(p, p + Segmentlength);
-      int accountType = numberFormatter.parse(
+      final String segment = field.substring(p, p + Segmentlength);
+      final int accountType = numberFormatter.parse(
           FieldType.NUMERIC, dimension, 2, segment.substring(0, 2).getBytes()).intValue();
-      int amountType = numberFormatter.parse(
+      final int amountType = numberFormatter.parse(
           FieldType.NUMERIC, dimension, 2, segment.substring(2, 4).getBytes()).intValue();
-      int currencyCode = numberFormatter.parse(
+      final int currencyCode = numberFormatter.parse(
           FieldType.NUMERIC, dimension, 3, segment.substring(4, 7).getBytes()).intValue();
-      BigInteger amount = numberFormatter.parse(
+      final BigInteger amount = numberFormatter.parse(
           FieldType.NUMSIGNED, dimension, 13, segment.substring(7).getBytes());
       result.add(new PostilionAddAmount(accountType, amountType, currencyCode, amount));
     }
-    return result.toArray(new PostilionAddAmount[0]);
+    return result.toArray(new PostilionAddAmount[result.size()]);
   }
 
 
   @Override
-  public byte[] format(String type, Object data, Dimension dimension) {
+  public byte[] format(final String type, final Object data, final Dimension dimension) {
     if (data == null) {
       throw new IllegalArgumentException("Data to format cannot be null");
     }
-    if (data instanceof PostilionAddAmount[] == false) {
+    if (!(data instanceof PostilionAddAmount[])) {
       throw new IllegalArgumentException("Data must be an array of PostilionAddAmount values");
     }
-    PostilionAddAmount[] addAmounts = (PostilionAddAmount[]) data;
+    final PostilionAddAmount[] addAmounts = (PostilionAddAmount[]) data;
     if (addAmounts.length < 1 || addAmounts.length > 6) {
       throw new IllegalArgumentException("Array of PostilionAddAmount must contain 1 to 6 values");
     }
-    StringBuilder result = new StringBuilder(addAmounts.length * 20);
-    for (PostilionAddAmount item : addAmounts) {
+    final StringBuilder result = new StringBuilder(addAmounts.length * 20);
+    for (final PostilionAddAmount item : addAmounts) {
       if (item == null) {
         throw new IllegalArgumentException("PostilionAddAmount null in data array");
       }
@@ -87,15 +87,15 @@ public class AddAmountsFormatter
 
 
   @Override
-  public boolean isValid(Object value, String type, Dimension dimension) {
-    if (value instanceof PostilionAddAmount[] == false) {
+  public boolean isValid(final Object value, final String type, final Dimension dimension) {
+    if (!(value instanceof PostilionAddAmount[])) {
       return false;
     }
-    PostilionAddAmount[] addAmounts = (PostilionAddAmount[]) value;
+    final PostilionAddAmount[] addAmounts = (PostilionAddAmount[]) value;
     if (addAmounts.length < 1 || addAmounts.length > 6) {
       return false;
     }
-    for (PostilionAddAmount item : addAmounts) {
+    for (final PostilionAddAmount item : addAmounts) {
       if (item == null) {
         return false;
       }

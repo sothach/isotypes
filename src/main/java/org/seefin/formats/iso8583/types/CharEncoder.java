@@ -17,11 +17,11 @@ public class CharEncoder {
    * @param charsetName JVM name of charset (see {@link java.nio.charset.Charset})
    * @throws IllegalArgumentException if the charset is null, or not supported by the JVM
    */
-  public CharEncoder(String charsetName) {
+  public CharEncoder(final String charsetName) {
     if (charsetName == null || charsetName.isEmpty() == true) {
       throw new IllegalArgumentException("charset cannot be null/empty");
     }
-    if (Charset.isSupported(charsetName) == false) {
+    if (!Charset.isSupported(charsetName)) {
       throw new IllegalArgumentException("charset [" + charsetName + "] not supported by JVM");
     }
     this.charset = Charset.forName(charsetName);
@@ -40,7 +40,7 @@ public class CharEncoder {
    * @throws UnsupportedEncodingException if <code>charset</code> is not supported by the JVM
    */
   public String
-  getString(byte[] data)
+  getString(final byte[] data)
       throws UnsupportedEncodingException {
     return new String(data, charset.name());
   }
@@ -52,7 +52,7 @@ public class CharEncoder {
    * @throws UnsupportedEncodingException if <code>charset</code> is not supported by the JVM
    */
   public byte[]
-  getBytes(String data)
+  getBytes(final String data)
       throws UnsupportedEncodingException {
     return data.getBytes(charset.name());
   }
@@ -64,7 +64,7 @@ public class CharEncoder {
    * @throws UnsupportedEncodingException if <code>charset</code> is not supported by the JVM
    */
   public byte[]
-  getBytes(byte[] data)
+  getBytes(final byte[] data)
       throws UnsupportedEncodingException {
     return getBytes(new String(data));
   }

@@ -86,9 +86,9 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
   private static final Pattern NameFieldMatcher
       = Pattern.compile("([^/]+)/([A-Za-z]*)([ ][A-Za-z]+)?\\.([A-Za-z]+)*");
 
-  private TypeFormatter<String> alphaFormatter;
+  private final TypeFormatter<String> alphaFormatter;
 
-  public TrackDataFormatter(CharEncoder charset) {
+  public TrackDataFormatter(final CharEncoder charset) {
     setCharset(charset);
     alphaFormatter = new AlphaFormatter(charset);
   }
@@ -99,16 +99,16 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
    * @throws ParseException if the supplied data does not match Track1 or Track2 data specification
    */
   @Override
-  public TrackData parse(String type, Dimension dim, int length, byte[] data)
+  public TrackData parse(final String type, final Dimension dim, final int length, final byte[] data)
       throws ParseException {
     final String value = decode(data);
     final Matcher t1matcher = Track1Matcher.matcher(value);
     if (t1matcher.matches()) {
-      return parseTrack1(t1matcher, value);
+      return parseTrack1(t1matcher);
     }
     final Matcher t2matcher = Track2Matcher.matcher(value);
     if (t2matcher.matches()) {
-      return parseTrack2(t2matcher, value);
+      return parseTrack2(t2matcher);
     }
 
     throw new ParseException("Could not understand track data (type=" + type + "): [" + value + "]", length);
@@ -118,7 +118,7 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
    * @see org.seefin.formats.iso8583.formatters.TypeFormatter#format(java.lang.String, java.lang.Object, org.seefin.formats.iso8583.types.Dimension)
    */
   @Override
-  public byte[] format(String type, Object data, Dimension dimension) {
+  public byte[] format(final String type, final Object data, final Dimension dimension) {
     if (data == null) {
       throw new IllegalArgumentException("TrackData value cannot be null");
     }
@@ -128,19 +128,19 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
           + data + "', is-a " + data.getClass().getSimpleName());
     }
 
-    TrackData trackData = (TrackData) data;
+    final TrackData trackData = (TrackData) data;
 
-    StringBuilder buffer = new StringBuilder();
-    String format = trackData.getType() == Track.TRACK1 ? "B%d^%-26.26s%04d%03d%s" : "%d%s=%04d%03d%s";
+    final StringBuilder buffer = new StringBuilder();
+    final String format = trackData.getType() == Track.TRACK1 ? "B%d^%-26.26s%04d%03d%s" : "%d%s=%04d%03d%s";
     buffer.append(String.format(format,
         trackData.getPrimaryAccountNumber(),
         trackData.getType() == Track.TRACK1 ? trackData.formatName() : "",
         trackData.getExpirationDate(),
         trackData.getServiceCode(),
         trackData.getDiscretionaryData()));
-    String result = buffer.toString();
+    final String result = buffer.toString();
 
-    return alphaFormatter.format(FieldType.ALPHANUMSYMBOL, result.toString(), dimension);
+    return alphaFormatter.format(FieldType.ALPHANUMSYMBOL, result, dimension);
   }
 
   /**
@@ -149,39 +149,30 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
    * and that the mandatory fields are set
    */
   @Override
-  public boolean isValid(Object value, String type, Dimension dimension) {
+  public boolean isValid(final Object value, final String type, final Dimension dimension) {
     if (!(value instanceof TrackData)) {
       return false;
     }
-    TrackData trackData = (TrackData) value;
+    final TrackData trackData = (TrackData) value;
     if (trackData.getType() != Track.TRACK1 && trackData.getType() != Track.TRACK2) {
       return false;
-    }
-    int ed = trackData.getExpirationDate();
-    if (ed == 0) {
+    } else if (trackData.getExpirationDate() == 0) {
+      return false;
+    } else if (trackData.getServiceCode() == 0) {
       return false;
     }
-    int sc = trackData.getServiceCode();
-    if (sc == 0) {
-      return false;
-    }
-    if (trackData.getType() == Track.TRACK2) {
-      return true;
-    }
-    return trackData.getPrimaryAccountNumber() != 0;
-
+    return trackData.getType() == Track.TRACK2 || trackData.getPrimaryAccountNumber() != 0;
   }
 
   /**
    * Interpret the supplied field value as Track 1 data
    * @param matcher that has matcher the Track1 pattern
-   * @param value   of the field to parse
    * @return TrackData object initialized from the sub-fields of <code>value/code>,
    * with the <code>name</code> property set
    * @throws AssertionError if the matcher has not matched the 5 groups in the Track1 pattern
    */
-  private TrackData parseTrack1(Matcher matcher, String value) {
-    TrackData result = new TrackData(TrackData.Track.TRACK1);
+  private TrackData parseTrack1(final Matcher matcher) {
+    final TrackData result = new TrackData(TrackData.Track.TRACK1);
     assert matcher.groupCount() == 6 : "Track1 Data has 6 fields (" + matcher.groupCount() + ")";
     assert matcher.group(1).charAt(0) == 'B' : "Only Track1 type 'B' format supported";
     result.setPrimaryAccountNumber(Long.parseLong(matcher.group(2).trim()));
@@ -196,13 +187,12 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
   /**
    * Interpret the supplied field value as Track 2 data
    * @param matcher that has matcher the Track2 pattern
-   * @param value   of the field to parse
    * @return TrackData object initialized from the sub-fields of <code>value</code>
    * without the <code>name</code> property set (not present in Track 2)
    * @throws AssertionError if the matcher has not matched the 4 groups in the Track2 pattern
    */
-  private TrackData parseTrack2(Matcher matcher, String value) {
-    TrackData result = new TrackData(TrackData.Track.TRACK2);
+  private TrackData parseTrack2(final Matcher matcher) {
+    final TrackData result = new TrackData(TrackData.Track.TRACK2);
     assert matcher.groupCount() == 4 : "Track2 Data has 4 fields (" + matcher.groupCount() + ")";
 
     result.setPrimaryAccountNumber(Long.parseLong(matcher.group(1)));
@@ -218,8 +208,8 @@ public class TrackDataFormatter extends TypeFormatter<TrackData> {
    * @param nameField formatted according to ISO8583 Track2 Data Name format
    * @return array of {Surname, First Name or Initial, Middle Name or Initia, Title}
    */
-  private String[] getNameFields(String nameField) {
-    Matcher matcher = NameFieldMatcher.matcher(nameField);
+  private String[] getNameFields(final String nameField) {
+    final Matcher matcher = NameFieldMatcher.matcher(nameField);
     if (!matcher.matches()) {
       return new String[]{nameField, "", "", ""};
     }

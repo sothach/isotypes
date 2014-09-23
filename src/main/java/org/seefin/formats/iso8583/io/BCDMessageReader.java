@@ -23,7 +23,7 @@ public class BCDMessageReader
   /**
    * Reader capable of reading BCD-encoded message data
    */
-  public BCDMessageReader(CharEncoder charset) {
+  public BCDMessageReader(final CharEncoder charset) {
     super.charCodec = charset;
   }
 
@@ -40,22 +40,22 @@ public class BCDMessageReader
    * {@inheritDoc}
    */
   @Override
-  public byte[] readField(FieldTemplate field, DataInputStream input)
+  public byte[] readField(final FieldTemplate field, final DataInputStream input)
       throws IOException {
     int length = field.getDimension().getLength();
     if (field.getDimension().getType() == Dimension.Type.VARIABLE) {
       // LVAR and LLVAR: 1 byte length specifier, LLLVAR: 2 bytes required:
-      byte[] var = new byte[(int) Math.ceil(field.getDimension().getVSize() / 2.0)];
+      final byte[] var = new byte[(int) Math.ceil(field.getDimension().getVSize() / 2.0)];
       input.readFully(var);
       length = Integer.parseInt(BCD.toString(var));
     }
     if (field.getType().equals(FieldType.TRACKDATA)) {
-      return readTrackData(field, length, input);
+      return readTrackData(length, input);
     }
     if (NumericTypes.contains(field.getType())) {
       boolean negative = false;
       if (field.getType().equals(FieldType.NUMSIGNED)) {
-        byte sign = input.readByte();
+        final byte sign = input.readByte();
         length -= 2; // read two nibbles
         negative = sign == 0x0d;
       }
@@ -73,12 +73,12 @@ public class BCDMessageReader
    * @return a byte array representing the numeric value read, as characters
    * @throws IOException if the required amount of data could not be read
    */
-  private byte[] readNumeric(FieldTemplate field, int length, boolean negative, DataInputStream input)
+  private byte[] readNumeric(final FieldTemplate field, final int length, final boolean negative, final DataInputStream input)
       throws IOException {
     // packed BCD, half length (rounded-up):
-    byte[] data = readBytes((int) Math.ceil(length / 2.0), input);
+    final byte[] data = readBytes((int) Math.ceil(length / 2.0), input);
     String result = BCD.toString(data);
-    int rlen = result.length();
+    final int rlen = result.length();
     if (rlen > length) // got left-padded zero when converted to BCD
     {
       result = result.substring(rlen - length, rlen);
@@ -91,23 +91,25 @@ public class BCDMessageReader
 
   /**
    * Read binary track data from the input stream
-   * @param field  template describing the field to be read
    * @param length of the field in the input
    * @return character representation of the track data
    * @throws IOException if the required amount of data could not be read
    */
-  private byte[] readTrackData(FieldTemplate field, int length, DataInputStream input)
+  private byte[] readTrackData(final int length, final DataInputStream input)
       throws IOException {
-    String pan = "", name = "", exdate = "", scode = "", descr = "";
-    byte[] data = new byte[(int) Math.ceil(length / 2.0)];
+    final String name = "";
+    String pan = "";
+    String exdate = "";
+    String scode = "";
+    String descr = "";
+    final byte[] data = new byte[(int) Math.ceil(length / 2.0)];
     input.readFully(data);
     int pos = 0;
-    if (data[0] == 0x37) // start sentinel
-    {
+    if (data[0] == 0x37) { // start sentinel
       pos++;
     }
     for (; pos < data.length; pos++) {
-      byte b = data[pos];
+      final byte b = data[pos];
       if ((b & 0xd0) == 0xd0) {
         pan = BCD.toString(Arrays.copyOfRange(data, 0, pos));
         break;
@@ -128,10 +130,10 @@ public class BCDMessageReader
    * {@inheritDoc}
    */
   @Override
-  public MTI readMTI(DataInputStream input)
+  public MTI readMTI(final DataInputStream input)
       throws IOException {
-    byte[] data = readBytes(2, input);
-    StringBuilder mti = new StringBuilder();
+    final byte[] data = readBytes(2, input);
+    final StringBuilder mti = new StringBuilder();
     mti.append((char) (((data[0] & 0xf0) >> 4) + 0x30));
     mti.append((char) ((data[0] & 0x0f) + 0x30));
     mti.append((char) (((data[1] & 0xf0) >> 4) + 0x30));

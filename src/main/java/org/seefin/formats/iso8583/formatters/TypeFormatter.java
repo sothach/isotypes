@@ -55,7 +55,7 @@ public abstract class TypeFormatter<T> {
    *                (see {@link java.nio.charset.Charset})
    * @throws IllegalArgumentException if the charset is null, or not supported by the JVM
    */
-  protected void setCharset(CharEncoder charset) {
+  protected void setCharset(final CharEncoder charset) {
     if (charset == null) {
       throw new IllegalArgumentException("charset cannot be null/empty");
     }
@@ -68,12 +68,12 @@ public abstract class TypeFormatter<T> {
    * @return A string representation of the data supplied, in the charset specified
    * @throw RuntimeException if data cannot be translated to the appropriate charset
    */
-  protected String decode(byte[] data) {
+  protected String decode(final byte[] data) {
     assert charset != null;
     try {
       return charset.getString(data);
-    } catch (UnsupportedEncodingException e) {
-      RuntimeException rethrow = new IllegalArgumentException(
+    } catch (final UnsupportedEncodingException e) {
+      final RuntimeException rethrow = new IllegalArgumentException(
           "Decoding error for field data: " + Arrays.toString(data));
       rethrow.initCause(e);
       throw rethrow;

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * @author phillipsr
  */
 public class AlphaFormatter extends TypeFormatter<String> {
-  public AlphaFormatter(CharEncoder charset) {
+  public AlphaFormatter(final CharEncoder charset) {
     setCharset(charset);
   }
 
@@ -29,19 +29,19 @@ public class AlphaFormatter extends TypeFormatter<String> {
    * @throws ParseException           if data cannot be translated to the appropriate charset
    */
   @Override
-  public String parse(String type, Dimension dimension, int position, byte[] data)
+  public String parse(final String type, final Dimension dimension, final int position, final byte[] data)
       throws ParseException {
-    String result;
+    final String result;
     try {
       result = decode(data).trim();
     } catch (Exception e) {
-      ParseException rethrow = new ParseException(
+      final ParseException rethrow = new ParseException(
           "Decoding error for " + type + " field: " + Arrays.toString(data), position);
       rethrow.initCause(e);
       throw rethrow;
     }
 
-    if (isValid(result, type, dimension) == false) {
+    if (!isValid(result, type, dimension)) {
       throw new ParseException("Invalid data parsed for field (" + type + ") value=[" + result + "]", position);
     }
     return result;
@@ -51,19 +51,19 @@ public class AlphaFormatter extends TypeFormatter<String> {
    * {@inheritDoc}
    */
   @Override
-  public byte[] format(String type, Object data, Dimension dimension) {
+  public byte[] format(final String type, final Object data, final Dimension dimension) {
     if (data == null) {
       throw new IllegalArgumentException("Alpha values cannot be null");
     }
-    String value = data instanceof byte[] ? new String((byte[]) data) : data.toString();
+    final String value = data instanceof byte[] ? new String((byte[]) data) : data.toString();
 
-    if (isValid(value, type, dimension) == false) {
+    if (!isValid(value, type, dimension)) {
       throw new IllegalArgumentException("Cannot format invalid value for [" + type + "] field: '"
           + value + "', is-a " + value.getClass().getSimpleName());
     }
 
     if (dimension.getType() == Dimension.Type.FIXED) {
-      int length = dimension.getLength();
+      final int length = dimension.getLength();
       if (value.length() > length) {
         throw new MessageException("Fixed field data length ("
             + value.length() + ") exceeds field maximum (" + dimension.getLength() + "): data=[" + value + "]");
@@ -96,7 +96,7 @@ public class AlphaFormatter extends TypeFormatter<String> {
    * pattern matcher for the supplied <code>type</code>
    */
   @Override
-  public boolean isValid(Object value, String type, Dimension dim) {
+  public boolean isValid(final Object value, final String type, final Dimension dim) {
     return value != null && Validators.get(type).matcher(value.toString().trim()).matches();
   }
 

@@ -55,6 +55,7 @@ public class MessageFactory {
   private boolean strict = Boolean.TRUE;
   private TypeFormatters formatters;
   private MessageParser parser;
+
   @Autowired(required = false)
   private AutoGeneratorFactory autoGenerator;
 
@@ -75,7 +76,7 @@ public class MessageFactory {
     return strict;
   }
 
-  public void setStrict(boolean strict) {
+  public void setStrict(final boolean strict) {
     this.strict = strict;
   }
 
@@ -89,7 +90,7 @@ public class MessageFactory {
    * @param bitmapType
    * @throws IllegalArgumentException if bitmapType is null
    */
-  public void setBitmapType(BitmapType bitmapType) {
+  public void setBitmapType(final BitmapType bitmapType) {
     if (bitmapType == null) {
       throw new IllegalArgumentException("bitmapType may not be null");
     }
@@ -106,7 +107,7 @@ public class MessageFactory {
    * @param contentType
    * @throws IllegalArgumentException if the content type is null
    */
-  public void setContentType(ContentType contentType) {
+  public void setContentType(final ContentType contentType) {
     if (contentType == null) {
       throw new IllegalArgumentException(
           "contentType cannot not be null, must be one of: " + Arrays.toString(ContentType.values()));
@@ -118,7 +119,7 @@ public class MessageFactory {
     return charset;
   }
 
-  public void setCharset(CharEncoder charset) {
+  public void setCharset(final CharEncoder charset) {
     if (charset == null) {
       throw new IllegalArgumentException("charset cannot be null");
     }
@@ -135,7 +136,7 @@ public class MessageFactory {
    * and expected at the start of messages parsed by this factory
    * @param header field value (can be null or empty)
    */
-  public void setHeader(String header) {
+  public void setHeader(final String header) {
     this.header = header;
   }
 
@@ -149,7 +150,7 @@ public class MessageFactory {
    * usually set from with the iso:schema XML element
    * @param description
    */
-  public void setDescription(String description) {
+  public void setDescription(final String description) {
     this.description = description;
   }
 
@@ -163,7 +164,7 @@ public class MessageFactory {
    * for referencing the factory bean for Spring usage
    * @param id
    */
-  public void setId(String id) {
+  public void setId(final String id) {
     this.id = id;
   }
 
@@ -174,7 +175,7 @@ public class MessageFactory {
    * </p>
    * The usual way to set this field is via Spring IoC
    */
-  public void setAutoGeneratorFactory(AutoGeneratorFactory autoGenerator) {
+  public void setAutoGeneratorFactory(final AutoGeneratorFactory autoGenerator) {
     this.autoGenerator = autoGenerator;
   }
 
@@ -190,7 +191,7 @@ public class MessageFactory {
    * Add a message to this factory's schema
    * @param message
    */
-  public void addMessage(MessageTemplate message) {
+  public void addMessage(final MessageTemplate message) {
     message.setSchema(this);
     this.messages.put(message.getMessageTypeIndicator(), message);
   }
@@ -213,14 +214,14 @@ public class MessageFactory {
    * Create an ISO8583 message of the type requested, setting the field values
    * from the supplied parameter map, keyed by field number, matching
    * <code>&lt;iso:message&gt;</code> configuration for this message type
-   * @param mti    type of message to create
+   * @param type    type of message to create
    * @param params field value to include in message, indexed by field number
    * @return a new message instance for the requested type,
    * with fields set from the parameters supplied
    * @throws IllegalArgumentException - if the supplied MTI is null
    */
-  public Message createByNumbers(MTI type, Map<Integer, Object> params) {
-    Message result = new Message(type);
+  public Message createByNumbers(final MTI type, final Map<Integer, Object> params) {
+    final Message result = new Message(type);
     result.setFields(params);
     result.setHeader(header);
     result.setTemplate(messages.get(type));
@@ -234,7 +235,7 @@ public class MessageFactory {
    * @throws IOException
    * @see #writeFromNumberMap(MTI, Map, OutputStream)
    */
-  public void writeToStream(Message message, OutputStream output)
+  public void writeToStream(final Message message, final OutputStream output)
       throws IOException {
     writeFromNumberMap(message.getMTI(), message.getFields(), output);
   }
@@ -249,9 +250,9 @@ public class MessageFactory {
    * @throws IllegalArgumentException if the type supplied is not defined in this factory's schema,
    *                                  the output stream is null or null/empty message parameters have been supplied
    */
-  public void writeFromNumberMap(MTI type, Map<Integer, Object> params, OutputStream output)
+  public void writeFromNumberMap(final MTI type, final Map<Integer, Object> params, final OutputStream output)
       throws IOException {
-    if (messages.containsKey(type) == false) {
+    if (!messages.containsKey(type)) {
       throw new IllegalArgumentException("Message not defined for MTI=" + type);
     }
     if (output == null) {
@@ -261,9 +262,9 @@ public class MessageFactory {
       throw new IllegalArgumentException("Message parameters are required");
     }
 
-    MessageTemplate template = messages.get(type);
-    MessageWriter writer = getOutputWriter(contentType, charset);
-    DataOutputStream dos = getDataOutputStream(output);
+    final MessageTemplate template = messages.get(type);
+    final MessageWriter writer = getOutputWriter(contentType, charset);
+    final DataOutputStream dos = getDataOutputStream(output);
 
     writer.appendHeader(header, dos);
     writer.appendMTI(type, dos);
@@ -271,14 +272,14 @@ public class MessageFactory {
 
     // Iterate over the fields in order of field number,
     // appending the field's data to the output stream
-    TreeSet<Integer> index = new TreeSet<Integer>(template.getFields().keySet());
-    for (Integer key : index) {
-      FieldTemplate field = template.getFields().get(key);
+    final TreeSet<Integer> index = new TreeSet<>(template.getFields().keySet());
+    for (final Integer key : index) {
+      final FieldTemplate field = template.getFields().get(key);
       Object data = params.get(field.getNumber());
       if (data == null && field.isOptional() == false) {
         // first, try to autogen, and then fall back to default (if any)
-        String autogen = field.getAutogen();
-        if (autogen != null && autogen.isEmpty() == false) {
+        final String autogen = field.getAutogen();
+        if (autogen != null && !autogen.isEmpty()) {
           if (autoGenerator == null) {
             throw new IllegalStateException(
                 "Message requires AutoGen field, but the (optional) AutoGenerator has not been set in the MessageFactory");
@@ -306,7 +307,7 @@ public class MessageFactory {
    * @param output
    * @return
    */
-  private DataOutputStream getDataOutputStream(OutputStream output) {
+  private DataOutputStream getDataOutputStream(final OutputStream output) {
     if (output instanceof DataOutputStream) {
       return (DataOutputStream) output;
     }
@@ -315,12 +316,12 @@ public class MessageFactory {
 
   /**
    * Return the appropriate message writer for the supplied content type
-   * @param output
-   * @param contentType2
+   * @param contentType
+   * @param charset
    * @return
    * @throws MessageException if no output writer is defined for the context type supplied
    */
-  private MessageWriter getOutputWriter(ContentType contentType, CharEncoder charset) {
+  private MessageWriter getOutputWriter(final ContentType contentType, final CharEncoder charset) {
     switch (contentType) {
       case TEXT:
         return new CharMessageWriter(charset);
@@ -337,20 +338,18 @@ public class MessageFactory {
    * 'name' field
    * @param type           (MTI) of ISO message to create
    * @param bean           holding value to populate message fields
-   * @param protocolParams map of protocol properties keyed by ISO field#
    * @return
    * @throws IllegalArgumentException if the type supplied is not defined in this factory's schema
    */
-  public Message createFromBean(MTI type, Object bean) {
-    if (messages.containsKey(type) == false) {
+  public Message createFromBean(final MTI type, final Object bean) {
+    if (!messages.containsKey(type)) {
       throw new IllegalArgumentException("Message not defined for MTI=" + type);
     }
-    Map<Integer, Object> params = new HashMap<Integer, Object>();
-    ;
-    for (FieldTemplate field : messages.get(type).getFields().values()) {
+    final Map<Integer, Object> params = new HashMap<Integer, Object>();
+    for (final FieldTemplate field : messages.get(type).getFields().values()) {
       try {
         params.put(field.getNumber(), PropertyUtils.getProperty(bean, field.getName()));
-      } catch (Exception e) {
+      } catch (final Exception e) {
         // ignore, as this value may be set later as a protocol parameter
 /*				throw new IllegalArgumentException ( "Unable to access property [" 
               + field.getName () + "] in supplied bean", e);*/
@@ -364,14 +363,14 @@ public class MessageFactory {
    * @param type
    * @return
    */
-  public MessageTemplate getTemplate(MTI type) {
+  public MessageTemplate getTemplate(final MTI type) {
     return messages.get(type);
   }
 
   /**
    * @param formatter
    */
-  public void addFormatter(String type, TypeFormatter<?> formatter) {
+  public void addFormatter(final String type, TypeFormatter<?> formatter) {
     formatters.setFormatter(type, formatter);
   }
 
@@ -380,11 +379,11 @@ public class MessageFactory {
    * @param type
    * @return
    */
-  TypeFormatter<?> getFormatter(String type) {
+  TypeFormatter<?> getFormatter(final String type) {
     TypeFormatter<?> result = null;
     try {
-      result = formatters.getFormatter(type);
-    } catch (Exception e) {
+      return formatters.getFormatter(type);
+    } catch (final Exception e) {
       // handled by result being left as null
     }
     if (result == null) {
@@ -400,7 +399,7 @@ public class MessageFactory {
    * @throws ParseException
    * @throws IOException
    */
-  public Message parse(byte[] bytes)
+  public Message parse(final byte[] bytes)
       throws ParseException, IOException {
     return this.parse(new ByteArrayInputStream(bytes));
   }
@@ -414,18 +413,18 @@ public class MessageFactory {
    * @throws IllegalArgumentException if the input stream supplied is null
    * @throws IOException              when an error occurs reading from the input stream
    */
-  public Message parse(InputStream input)
+  public Message parse(final InputStream input)
       throws ParseException, IOException {
     if (input == null) {
       throw new IllegalArgumentException("Input stream cannot be null");
     }
     DataInputStream dis;
-    if (input instanceof DataInputStream == false) {
+    if (!(input instanceof DataInputStream)) {
       dis = new DataInputStream(input);
     } else {
       dis = (DataInputStream) input;
     }
-    Message result = parser.parse(dis);
+    final Message result = parser.parse(dis);
     result.setTemplate(messages.get(result.getMTI()));
     return result;
   }
@@ -440,13 +439,13 @@ public class MessageFactory {
    * with fields set from the parameters supplied
    * @throws IllegalArgumentException if the type is not defined in this factory's schema
    */
-  public Message createByNames(MTI type, Map<String, Object> params) {
-    if (messages.containsKey(type) == false) {
+  public Message createByNames(final MTI type, final Map<String, Object> params) {
+    if (!messages.containsKey(type)) {
       throw new IllegalArgumentException("Message not defined for MTI=" + type);
     }
     // convert the name map supplied to a field number keyed map
-    Map<Integer, Object> numParams = new HashMap<Integer, Object>();
-    for (FieldTemplate field : messages.get(type).getFields().values()) {
+    final Map<Integer, Object> numParams = new HashMap<Integer, Object>();
+    for (final FieldTemplate field : messages.get(type).getFields().values()) {
       numParams.put(field.getNumber(), params.get(field.getName()));
     }
     return createByNumbers(type, numParams);
@@ -458,8 +457,8 @@ public class MessageFactory {
    * @param mti type of message
    * @return
    */
-  public Message create(MTI mti) {
-    Message result = new Message(mti);
+  public Message create(final MTI mti) {
+    final Message result = new Message(mti);
     MessageTemplate template = messages.get(result.getMTI());
     result.setHeader(template.getHeader());
     result.setTemplate(template);
@@ -477,9 +476,9 @@ public class MessageFactory {
    * @return
    * @throws IllegalArgumentException if the mti supplied is not defined in this factory's schema
    */
-  public Message duplicate(MTI mti, Message source) {
-    Message result = new Message(mti);
-    MessageTemplate template = messages.get(result.getMTI());
+  public Message duplicate(final MTI mti, final Message source) {
+    final Message result = new Message(mti);
+    final MessageTemplate template = messages.get(result.getMTI());
     if (template == null) {
       throw new IllegalArgumentException("Message type [" + mti + "] not defined");
     }
@@ -487,11 +486,11 @@ public class MessageFactory {
     result.setHeader(source.getHeader());
     // move corresponding fields from source to target message, that is,
     // by corresponding field number
-    for (FieldTemplate field : template.getFields().values()) {
-      if (source.isFieldPresent(field.getNumber()) == false) {
+    for (final FieldTemplate field : template.getFields().values()) {
+      if (!source.isFieldPresent(field.getNumber())) {
         continue;
       }
-      Object fieldValue = source.getFieldValue(field.getNumber());
+      final Object fieldValue = source.getFieldValue(field.getNumber());
       if (fieldValue != null) {
         result.setFieldValue(field.getNumber(), fieldValue);
       }
@@ -506,8 +505,8 @@ public class MessageFactory {
    * content type specified in the iso:schema in the configuration
    * @throws MessageException if an error occurred creating the byte representation of the message
    */
-  public byte[] getMessageData(Message message) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+  public byte[] getMessageData(final Message message) {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
       this.writeToStream(message, new DataOutputStream(baos));
       return baos.toByteArray();

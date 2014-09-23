@@ -17,18 +17,18 @@ public class BitsetUtil {
    * @throws IllegalArgumentException if the hex string is null, empty or not even-sized
    */
   static BitSet
-  hex2Bitset(String hex) {
-    BitSet result = new BitSet();
+  hex2Bitset(final String hex) {
+    final BitSet result = new BitSet();
     if (hex == null) {
       throw new IllegalArgumentException("Hex string must be non-null");
     }
     if (hex.length() == 0 || hex.length() % 2 != 0) {
       throw new IllegalArgumentException("Hex string must be even-sized (length=" + hex.length() + ")");
     }
-    int length = hex.length();
+    final int length = hex.length();
     int bytenum = (length / 2) - 1;
     for (int index = length; index >= 2; index -= 2) {
-      int bytevalue = Integer.valueOf(hex.substring(index - 2, index), 16);
+      final int bytevalue = Integer.valueOf(hex.substring(index - 2, index), 16);
       for (int bit = 0, mask = 0x80; mask >= 0x01; bit++, mask /= 2) {
         if ((mask & bytevalue) == mask) {
           result.set((bytenum * 8) + bit);
@@ -47,12 +47,12 @@ public class BitsetUtil {
    * @return hexadecimal string version of the <code>bitset</code>supplied
    */
   static String
-  bitset2Hex(BitSet bitset, int minLength) {
-    StringBuilder result = new StringBuilder();
+  bitset2Hex(final BitSet bitset, final int minLength) {
+    final StringBuilder result = new StringBuilder();
     for (int bytenum = 0; bytenum < minLength / 2; bytenum++) {
       byte v = 0;
       for (int bit = 0, mask = 0x80; mask >= 0x01; bit++, mask /= 2) {
-        if (bitset.get((bytenum * 8) + bit) == true) {
+        if (bitset.get((bytenum * 8) + bit)) {
           v |= mask;
         }
       }
@@ -73,11 +73,11 @@ public class BitsetUtil {
    * @throws IllegalArgumentException if the bitset is null
    */
   static String
-  bitset2bitstring(BitSet target, int length) {
+  bitset2bitstring(final BitSet target, final int length) {
     if (target == null) {
       throw new IllegalArgumentException("Bitset must not be null");
     }
-    StringBuilder result = new StringBuilder();
+    final StringBuilder result = new StringBuilder();
     for (int i = 0; i < length; i++) {
       result.append(target.get(i) ? "1" : "0");
     }
@@ -90,7 +90,7 @@ public class BitsetUtil {
    * @return
    */
   static BitSet
-  bin2Bitset(byte[] binBitmap) {
+  bin2Bitset(final byte[] binBitmap) {
     BitSet result = new BitSet();
     for (int bytenum = 0; bytenum < binBitmap.length; bytenum++) {
       for (int bit = 0, mask = 0x80; mask >= 0x01; bit++, mask /= 2) {
@@ -111,7 +111,7 @@ public class BitsetUtil {
    * @throws IllegalArgumentException if the bitset is null
    */
   static byte[]
-  bitset2bin(BitSet bitSet, int length) {
+  bitset2bin(final BitSet bitSet, final int length) {
     if (bitSet == null) {
       throw new IllegalArgumentException("bitSet must be non-null");
     }
@@ -120,7 +120,7 @@ public class BitsetUtil {
     for (int bytenum = length - 1; bytenum >= 0; bytenum--) {
       result[bytenum] = 0;
       for (int bit = 0, mask = 0x80; mask >= 0x01; bit++, mask /= 2) {
-        if (bitSet.get((bytenum * 8) + bit) == true) {
+        if (bitSet.get((bytenum * 8) + bit)) {
           result[bytenum] |= mask;
         }
       }

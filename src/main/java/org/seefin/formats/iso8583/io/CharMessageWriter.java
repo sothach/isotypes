@@ -20,7 +20,7 @@ public class CharMessageWriter
    * data in the specified character set
    * @param codec to be used when writing character data
    */
-  public CharMessageWriter(CharEncoder codec) {
+  public CharMessageWriter(final CharEncoder codec) {
     super.charCodec = codec;
   }
 
@@ -28,7 +28,7 @@ public class CharMessageWriter
    * {@inheritDoc}
    */
   @Override
-  public void appendMTI(MTI type, DataOutputStream output)
+  public void appendMTI(final MTI type, final DataOutputStream output)
       throws IOException {
     write(type.toString(), output);
   }
@@ -37,12 +37,12 @@ public class CharMessageWriter
    * {@inheritDoc}
    */
   @Override
-  public void appendField(FieldTemplate field, Object data, DataOutputStream output)
+  public void appendField(final FieldTemplate field, final Object data, final DataOutputStream output)
       throws IOException {
-    byte[] fieldValue = charCodec.getBytes(field.format(data));
-    Dimension dim = field.getDimension();
+    final byte[] fieldValue = charCodec.getBytes(field.format(data));
+    final Dimension dim = field.getDimension();
     if (dim.getType() == Dimension.Type.VARIABLE) {
-      String vsize = String.format("%0" + dim.getVSize() + "d", fieldValue.length);
+      final String vsize = String.format("%0" + dim.getVSize() + "d", fieldValue.length);
       output.write(charCodec.getBytes(vsize));
     }
     write(fieldValue, output);
