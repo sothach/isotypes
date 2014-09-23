@@ -1,1 +1,1 @@
-http\://seefin.org/schema/iso8583=org.seefin.formats.iso8583.spring.Iso8583NamespaceHandler
+http\://nulleins.org/schema/iso8583=org.nulleins.formats.iso8583.spring.Iso8583NamespaceHandler

@@ -5,12 +5,12 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.seefin.formats</groupId>
+	<groupId>org.nulleins.formats</groupId>
 	<artifactId>isotypes</artifactId>
 	<version>1.0.0-RC1</version>
 
 	<organization>
-		<name>Seefin</name>
+		<name>NullEins</name>
 		<url></url>
 	</organization>
 
@@ -20,7 +20,7 @@
 			<name>Roy Phillips</name>
 			<email>phillips.roy@gmail.com</email>
 			<url>http://code.google.com/p/isotypes</url>
-			<organization>Seefin</organization>
+			<organization>NullEins</organization>
 			<timezone>0</timezone>
 		</developer>
 	</developers>
