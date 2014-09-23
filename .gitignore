@@ -1,11 +1,14 @@
+*.iml
+**/*.iml
+*.ipr
+*.iws
+.gradle
+build
+out
+lib
+.gradle
 .classpath
 .project
 .settings
-syntax: glob
-*.class
-*.jar
-*.log
-*.iml
-*.pdf
-syntax: regexp
-^target$
+.idea
+classes
